@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+x<!DOCTYPE html>
 <html>
   <head>
     <title>WebSocket Chat Client</title>
@@ -8,18 +8,74 @@
 
     <script type="text/javascript">
 
-        var canvas, context;
-
+        var canvas, context, currCol, currX, currY, mouseDown;
 
         function init(){
             console.log("hi!");
             canvas = document.getElementById("myCanvas");
             context = canvas.getContext("2d");
-            context.fillStyle = "#FF0000";
-            context.fillRect(0,0,150,75);
-
             drawGrid();
+            addCanvasListener();
 
+        }
+
+        function getMousePos(canvas, evt) {
+            var rect = canvas.getBoundingClientRect();
+            return {
+              x: evt.clientX - rect.left,
+              y: evt.clientY - rect.top
+            };
+        }
+
+        function writeMessage(msg){
+            console.log(msg);
+        }
+
+        function addCanvasListener(){
+//            canvas.addEventListener('mousemove', function(evt)
+
+            canvas.addEventListener("mousemove", doMouseMove, false);
+            canvas.addEventListener("mousedown", doMouseDown, false);
+            canvas.addEventListener("mouseup", doMouseUp, false);
+        }
+
+        function doMouseMove(event){
+          var mousePos = getMousePos(canvas, event);
+            console.log("m move");
+            if (mouseDown){
+                context.fillStyle= currCol;
+                var xpos = Math.floor(mousePos.x/10)*10;
+                var ypos =  Math.floor(mousePos.y/10)*10;
+                //context.fillRect(10*(Math.floor(mousePos.x/10)), 10*(Math.floor(mousePos.y/10), 10, 10));
+                context.fillRect(xpos, ypos, 10, 10);
+                sendToServer(xpos, ypos, currCol.toString());
+            }
+        }
+
+        function sendToServer(xpos, ypos, color){
+            console.log("===SEND TO SERVER===");
+            console.log("x:"+xpos);
+
+
+
+
+        }
+
+        function doMouseDown(event){
+
+            console.log("m down");
+            mouseDown = true;
+        }
+
+        function doMouseUp(event){
+             mouseDown = false;
+            console.log("m up");
+        }
+
+        function getBgColor(){
+            var col = document.getElementById("colorPicker").value;
+            currCol = col;
+            console.log(currCol);
         }
 
         function drawGrid(){
@@ -35,15 +91,8 @@
                     context.lineTo(j*squarewidth, 250);
                     context.stroke();
 
-
                 }
             }
-
-
-
-
-
-
         }
 
 
@@ -96,6 +145,9 @@
                 }
             });
         });
+
+
+
     </script>
   </head>
   <body onload="init()">
@@ -106,7 +158,7 @@
       <div id="drawing">
       <canvas id="myCanvas" width="400" height="250" style="border:1px solid #000000;">
 </canvas>
-
+      <input type="color" id="colorPicker" onchange="getBgColor()">
       </div>
 
   </body>
